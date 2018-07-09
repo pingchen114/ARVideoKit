@@ -12,7 +12,7 @@ In other words, you **NO LONGER** have to ~screen record~/~screenshot~ to captur
 | [Key Features](#key-features) | Lists the key features `ARVideoKit` offers     |
 | [Compatibility](#compatibility) | Describes the `ARVideoKit` device and iOS compatibality |
 | [Example Projects](#example-projects) | Explains how to run the example project provided in this repository |
-| [Installation](#installation) | Describes the [Manual](#manual) option to install `ARVideoKit`   |
+| [Installation](#installation) | Describes the [Cocoapods](#cocoapods), [Carthage](#carthage) & [Manual](#manual) options to install `ARVideoKit`   |
 | [Implementation](#implementation) | Lists the [steps needed](#implementation) for Objective-C & Swift, [notes](#note), and [reference](#youre-all-set-) for more options  |
 | [Publishing to the App Store](#publishing-to-the-app-store) | Describes the steps **required** before submitting an application using `ARVideoKit` to the App Store. |
 |[![Donate](https://www.paypalobjects.com/webstatic/en_US/i/btn/png/btn_donate_92x26.png)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ahmedfbekhit@gmail.com&item_name=Support+ARVideoKit+Developer&item_number=ARVideoKit+Framework+Donations&amount=0%2e00&currency_code=USD) | [Donations](#donate) will support me to keep maintaining `ARVideoKit` ❤️|
@@ -49,6 +49,26 @@ In other words, you **NO LONGER** have to ~screen record~/~screenshot~ to captur
 To try the example project, simply clone this repository and open the `Examples` folder to choose between the Objective-C and Swift project files.
 
 ## Installation
+### Cocoapods
+1. Add this line to your project's `Podfile`
+```
+pod 'ARVideoKit'
+```
+2. Install the pod
+```
+$ pod install
+```
+
+### Carthage
+1. Add this line to your project's `Cartfile`
+```
+github "AFathi/ARVideoKit" ~> 1.31
+```
+2.  Update your Carthage directory
+```
+$ carthage update
+```
+
 ### Manual
 Drag the `ARVideoKit.framework` file as an embedded binary of your project targets. `ARVideoKit.framework` can be found in the `/Framework Build/` folder of this repository.
 ![Tutorial](http://www.ahmedbekhit.com/arvideokit_install_new.gif)
