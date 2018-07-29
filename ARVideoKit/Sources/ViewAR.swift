@@ -51,21 +51,21 @@ import ARKit
         return all
     }
     //returns the application's delegate to check if the current UIViewController contains an ARView
-    private static var delegate = UIApplication.shared.delegate
+    private static var appDelegate = UIApplication.shared.delegate
     //variable for the setter in `mask`
-    private static var m: UIInterfaceOrientationMask = .portrait
+    private static var _mask: UIInterfaceOrientationMask = .portrait
     //returns the most appropriate orientation based on the content of the UIViewController.
     private static var mask: UIInterfaceOrientationMask {
         get {
-            if let vc = delegate?.window??.inputViewController {
+            if let vc = appDelegate?.window??.inputViewController {
                 if vc.hasARView {
                     return .portrait
                 } else {
                     return UIInterfaceOrientationMask(orientations)
                 }
             }
-            return m
+            return _mask
         }
-        set { m = newValue }
+        set { _mask = newValue }
     }
 }
