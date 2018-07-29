@@ -12,13 +12,7 @@ import ARKit
 import Photos
 import PhotosUI
 
-private var view: Any?
-private var renderEngine: SCNRenderer!
-private var gpuLoop: CADisplayLink!
-private var isResting = false
-private var ARcontentMode: ARFrameMode!
-@available(iOS 11.0, *)
-private var renderer: RenderAR!
+
 /**
  This class renders the `ARSCNView` or `ARSKView` content with the device's camera stream to generate a video 📹, photo 🌄, live photo 🎇 or GIF 🎆.
 
@@ -30,6 +24,11 @@ private var renderer: RenderAR!
  */
 @available(iOS 11.0, *)
 @objc public class RecordAR: ARView {
+    private var gpuLoop: CADisplayLink!
+    private var renderer: RenderAR!
+    private var renderEngine: SCNRenderer!
+    private weak var view: UIView?
+    
     //MARK: - Public objects to configure RecordAR
     /**
      An object that passes the AR recorder errors and status in the protocol methods.
@@ -38,7 +37,7 @@ private var renderer: RenderAR!
     /**
      An object that passes the AR rendered content in the protocol method.
      */
-    @objc public var renderAR: RenderARDelegate?
+    @objc public var renderARDelegate: RenderARDelegate?
     /**
      An object that returns the AR recorder current status.
      */
@@ -142,7 +141,7 @@ private var renderer: RenderAR!
             let scene = try SCNScene(url: url!, options: nil)
             scnView.scene = scene
             setup()
-        }catch let error {
+        } catch let error {
             logAR.message("Error occurred while loading SK Video Assets : \(error). Please download \"video.scnassets\" from\nwww.ahmedbekhit.com/ARVideoKitAssets")
         }
     }
@@ -212,8 +211,9 @@ private var renderer: RenderAR!
     }
     
     //MARK: - Video Setup
-    func setup() {
-        if let view = view as? ARSCNView {
+    private func setup() {
+        switch view {
+        case let view as ARSCNView:
             guard let mtlDevice = MTLCreateSystemDefaultDevice() else {
                 logAR.message("ERROR:- This device does not support Metal")
                 return
@@ -226,7 +226,7 @@ private var renderer: RenderAR!
             gpuLoop.add(to: .main, forMode: .commonModes)
             
             status = .readyToRecord
-        } else if let view = view as? ARSKView {
+        case let view as ARSKView:
             guard let mtlDevice = MTLCreateSystemDefaultDevice() else {
                 logAR.message("ERROR:- This device does not support Metal")
                 return
@@ -249,7 +249,7 @@ private var renderer: RenderAR!
             gpuLoop.add(to: .main, forMode: .commonModes)
             
             status = .readyToRecord
-        } else if let view = view as? SCNView {
+        case let view as SCNView:
             guard let mtlDevice = MTLCreateSystemDefaultDevice() else {
                 logAR.message("ERROR:- This device does not support Metal")
                 return
@@ -262,6 +262,8 @@ private var renderer: RenderAR!
             gpuLoop.add(to: .main, forMode: .commonModes)
             
             status = .readyToRecord
+        default:
+            fatalError("ERROR:- We do not have a valid view for recording.")
         }
         
         onlyRenderWhileRec = onlyRenderWhileRecording
@@ -676,7 +678,6 @@ private var renderer: RenderAR!
      - parameter configuration: An object that defines motion and scene tracking behaviors for the session.
     */
     @objc public func prepare(_ configuration: ARConfiguration? = nil) {
-        ARcontentMode = contentMode
         onlyRenderWhileRec = onlyRenderWhileRecording
         if let view = view as? ARSCNView {
             UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
@@ -726,7 +727,7 @@ extension RecordAR {
         self.writerQueue.sync {
             var time: CMTime { return CMTimeMakeWithSeconds(renderer.time, 1000000) }
             
-            self.renderAR?.frame(didRender: buffer, with: time, using: rawBuffer)
+            self.renderARDelegate?.frame(didRender: buffer, with: time, using: rawBuffer)
 
             //gif images writing
             if self.isRecordingGIF {
