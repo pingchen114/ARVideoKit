@@ -9,14 +9,14 @@
 import Foundation
 import ARKit
 
-private var view: Any?
-private var renderEngine: SCNRenderer!
-
 @available(iOS 11.0, *)
 struct RenderAR {
+    private weak var view: UIView?
+    private weak var renderEngine: SCNRenderer!
+    
     var ARcontentMode: ARFrameMode!
     
-    init(_ ARview: Any?, renderer: SCNRenderer, contentMode: ARFrameMode) {
+    init(_ ARview: UIView?, renderer: SCNRenderer, contentMode: ARFrameMode) {
         view = ARview
         renderEngine = renderer
         ARcontentMode = contentMode
@@ -25,16 +25,18 @@ struct RenderAR {
     let pixelsQueue = DispatchQueue(label: "com.ahmedbekhit.PixelsQueue", attributes: .concurrent)
     var time: CFTimeInterval { return CACurrentMediaTime()}
     var rawBuffer: CVPixelBuffer? {
-        if let view = view as? ARSCNView {
+        switch view {
+        case let view as ARSCNView:
             guard let rawBuffer = view.session.currentFrame?.capturedImage else { return nil }
             return rawBuffer
-        } else if let view = view as? ARSKView {
+        case let view as ARSKView:
             guard let rawBuffer = view.session.currentFrame?.capturedImage else { return nil }
             return rawBuffer
-        } else if view is SCNView {
+        case is SCNView:
             return buffer
+        default:
+            return nil
         }
-        return nil
     }
     
     var bufferSize: CGSize? {
@@ -82,20 +84,20 @@ struct RenderAR {
     }
     
     var buffer: CVPixelBuffer? {
-        if view is ARSCNView {
+        switch view {
+        case is ARSCNView:
             guard let size = bufferSize else { return nil }
             //UIScreen.main.bounds.size
             var renderedFrame: UIImage?
             pixelsQueue.sync {
                 renderedFrame = renderEngine.snapshot(atTime: self.time, with: size, antialiasingMode: .none)
             }
-            if let _ = renderedFrame {
-            } else {
+            if renderedFrame == nil {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none)
             }
             guard let buffer = renderedFrame!.buffer else { return nil }
             return buffer
-        } else if view is ARSKView {
+        case is ARSKView:
             guard let size = bufferSize else { return nil }
             var renderedFrame: UIImage?
             pixelsQueue.sync {
@@ -105,8 +107,8 @@ struct RenderAR {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none).rotate(by: 180)
             }
             guard let buffer = renderedFrame!.buffer else { return nil }
-            return buffer;
-        } else if view is SCNView {
+            return buffer
+        case is SCNView:
             let size = UIScreen.main.bounds.size
             var renderedFrame: UIImage?
             pixelsQueue.sync {
@@ -118,7 +120,8 @@ struct RenderAR {
             }
             guard let buffer = renderedFrame!.buffer else { return nil }
             return buffer
+        default:
+            return nil
         }
-        return nil
     }
 }

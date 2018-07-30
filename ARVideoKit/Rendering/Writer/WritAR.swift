@@ -99,7 +99,7 @@ class WritAR: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
 
         switch videoInputOrientation {
         case .auto:
-            t = t.rotated(by: ((rotationAngle*CGFloat.pi) / 180))
+            t = t.rotated(by: ((rotationAngle * CGFloat.pi) / 180))
         case .alwaysPortrait:
             t = t.rotated(by: 0)
         case .alwaysLandscape:
